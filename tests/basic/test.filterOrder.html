@@ -1,0 +1,50 @@
+<html>
+
+<head>
+    <script src='/tests/assert.js'></script>
+    <script src='/dist/fetch-middleware.min.js'></script>
+    <script language='javascript'>
+        window.onload = function () {
+            parent.run('Filter order', () => {
+
+                var filterOrder = [];
+
+                addMiddleware({
+                    before: function(settings, options) {
+                        filterOrder.push("Filter 1 before");
+                    },
+                    then: function(response, settings, options, reject, next) {
+                        filterOrder.push("Filter 1 after");
+                        next();
+                    }
+                });
+
+                addMiddleware({
+                    before: function(settings, options) {
+                        filterOrder.push("Filter 2 before");
+                    },
+                    then: function(response, settings, options, reject, next) {
+                        filterOrder.push("Filter 2 after");
+                        next();
+                    }
+                });
+
+                expectAsserts(2);
+                return fetch("grumpy-cat.jpg").then((response) => {
+                    assertEquals(200, response.status);
+                    assertEquals([
+                        "Filter 2 before",
+                        "Filter 1 before",
+                        "Filter 1 after",
+                        "Filter 2 after"
+                    ], filterOrder)
+                })
+            });
+        }
+    </script>
+</head>
+
+<body>
+</body>
+
+</html>
