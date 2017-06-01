@@ -17,14 +17,26 @@ export interface FetchMiddleware {
      *
      * You can call reject(String reason) if you decide the request should not pass.
      */
-    then?(data: Response, settings: RequestInfo, options: RequestInit, reject: (reason: any) => void, next: Function): void;
+    then?(
+        response: Response, 
+        settings: RequestInfo, 
+        options: RequestInit, 
+        reject: (reason: any) => void, 
+        next: (newResponse?: Response) => void
+    ): void;
 
     /**
      * Executed when the request was successful, you can implement any logic here, even asynchronous.
      *
      * You can call resolve(Object data) if you decide the request should pass.
      */
-    fail?(reason: any, settings: RequestInfo, options: RequestInit, resolve: (response: Response) => void, next: Function): void;
+    fail?(
+        reason: any, 
+        settings: RequestInfo, 
+        options: RequestInit, 
+        resolve: (response: Response) => void, 
+        next: Function
+    ): void;
 }
 
 var middlewares: FetchMiddleware[] = [];
@@ -69,7 +81,7 @@ window.fetch = function(request: RequestInfo, options?: RequestInit): Promise<Re
             middlewareChain.done(
                 middlewares,
                 [data, request, options, deferredReject], 
-                () => resolve(data) // All middlewares passed, resolve the outer XHR
+                (response) => resolve(response) // All middlewares passed, resolve the outer XHR
             );
         });
 
@@ -85,7 +97,7 @@ window.fetch = function(request: RequestInfo, options?: RequestInit): Promise<Re
                 middlewareChain.done(
                     middlewares,
                     [data, request, options, deferredRejectAgain],
-                    () => resolve(data)
+                    (response) => resolve(response)
                 );
             };
 

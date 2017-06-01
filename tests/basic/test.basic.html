@@ -8,9 +8,10 @@
     <script language='javascript'>
         window.onload = function () {
             parent.run('Fetch still works', function () {
-                expectAsserts(1);
+                expectAsserts(2);
                 return fetch("grumpy-cat.jpg").then(function (response) {
                     assertEquals(response.status, 200);
+                    assertInstanceOf(Response, response);
                 })
             });
         }

@@ -13,7 +13,7 @@ export interface FetchMiddleware {
      *
      * You can call reject(String reason) if you decide the request should not pass.
      */
-    then?(data: Response, settings: RequestInfo, options: RequestInit, reject: (reason: any) => void, next: Function): void;
+    then?(response: Response, settings: RequestInfo, options: RequestInit, reject: (reason: any) => void, next: (newResponse?: Response) => void): void;
     /**
      * Executed when the request was successful, you can implement any logic here, even asynchronous.
      *

@@ -1,10 +1,6 @@
 
 import { FetchMiddleware } from "./index";
 
-export type Method = "fail" | "then";
-
-export type FilterCallback = (dataOrReason: Response | any, settings: RequestInfo, rejectOrResolve: (reasonOrData: any) => void, next: Function) => void
-
 /**
  * Middleware to run before the XHR Request.
  *
@@ -26,7 +22,7 @@ function before(middlewares: FetchMiddleware[], settings: RequestInfo, options?:
  * @param args The arguments to pass to the methods
  * @param callback The callback to execute after all middlewares are run
  */
-function done(middlewares: FetchMiddleware[], args: any[], callback: () => void) {
+function done(middlewares: FetchMiddleware[], args: any[], callback: (newResponse: any) => void) {
   next(args, getValidMethods(middlewares, "then"), callback);
 }
 
@@ -60,12 +56,17 @@ function getValidMethods(middlewares: FetchMiddleware[], method: "then" | "fail"
  * @param fns The next functions to call
  * @param callback The callback to execute after all middlewares are run
  */
-function next(args: any[], fns: ((...args: any[]) => void)[], callback: () => void) {
+function next(args: any[], fns: ((...args: any[]) => void)[], callback: (newResponse: any) => void) {
   const fn = fns[0];
   if (fn) {
-    fn(...args, () => next(args, fns.slice(1), callback));
+    fn(...args, (newResponse: any) => {
+      if (newResponse) {
+        args[0] = newResponse;
+      }
+      next(args, fns.slice(1), callback)
+    });
   } else {
-    callback();
+    callback(args[0]);
   }
 }
 

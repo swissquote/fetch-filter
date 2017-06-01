@@ -21,14 +21,10 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 #iframe {
-    float:right;
-    border: solid 1px #ddd;
+    border: dashed 1px #ddd;
 }
 #log {
-    padding-left: 20px;
     font-size: .8em;
-    height: 90%;
-    overflow-y: auto;
 }
 .error {
     color: red;
@@ -41,7 +37,9 @@ pre {
 </style>
 </head>
 <body>
-    <iframe id="iframe" src="about:blank" width="600" height="400"></iframe>
+    <h2>Log</h2>
     <div id="log"></div>
+    <h2>Test Zone</h2>
+    <iframe id="iframe" src="about:blank" width="300" height="300"></iframe>
 </body>
 </html>

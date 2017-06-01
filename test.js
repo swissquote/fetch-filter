@@ -10,14 +10,23 @@ var app = express();
 var failedTest = false;
 var runningBrowser;
 
-app.use(bodyParser.json()); // to support JSON-encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // to support URL-encoded bodies
+var stayinAlive = (process.argv.indexOf("--stayinAlive") > -1)
 
+// to support JSON and URL-encoded bodies
+app.use(bodyParser.json()); 
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Automatically serve static assets
 app.use("/tests", express.static(__dirname + "/tests"));
 app.use("/dist", express.static(__dirname + "/dist"));
 app.use("/node_modules", express.static(__dirname + "/node_modules"));
 
+// Register test-specific routes
+require("./tests/routes")(app);
+
+// The main test runner; homepage with add the frameworks and lists the tests to run.
 app.get("/tests/runner", function(req, res) {
+  failedTest = false;
   glob("tests/**/test.*.html", function(er, files) {
     console.log("Starting tests on " + files.length + " files");
 
@@ -31,6 +40,8 @@ app.get("/tests/runner", function(req, res) {
   });
 });
 
+// This endpoint receives test results and logs them,
+// If a test failed we add this in a flag
 app.post("/tests/result", function(req, res) {
   if (req.body.result == "OK") {
     console.log("[OK] " + req.body.name);
@@ -41,6 +52,9 @@ app.post("/tests/result", function(req, res) {
   res.send("");
 });
 
+// When tests are done, this endpoint is called and 
+// will close the test runner with a status of 0 or 1
+// depending if any test failed or not
 app.post("/tests/done", function(req, res) {
   res.send("All tests done");
   console.log("All tests done");
@@ -53,7 +67,9 @@ app.post("/tests/done", function(req, res) {
     runningBrowser.kill();
   }
 
-  process.exit(failedTest ? 1 : 0);
+  if (!stayinAlive) {
+    process.exit(failedTest ? 1 : 0);
+  }
 });
 
 function prefixBrowserOutput(data) {
@@ -76,6 +92,8 @@ app.listen(8098, function() {
   runningBrowser.stderr.on("data", prefixBrowserOutput);
 });
 
+// Instructions on how to start the different 
+// browsers and have them run the tests
 var browsers = {
   firefox: function(path) {
     return child_process.spawn("firefox", [path]);

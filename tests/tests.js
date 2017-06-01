@@ -30,7 +30,7 @@ function reportResultAndRunNextTest(result, location) {
   }
 
   var request = new XMLHttpRequest();
-  request.open("POST", "/tests/result", false);
+  request.open("POST", "/tests/result", true);
   request.setRequestHeader(
     "Content-Type",
     "application/x-www-form-urlencoded; charset=UTF-8"
@@ -42,7 +42,8 @@ function reportResultAndRunNextTest(result, location) {
       encodeURIComponent(result)
   );
 
-  runNextTest();
+  // Run next test once we're done reporting
+  request.onload = runNextTest
 }
 
 function runNextTest(name, result) {
@@ -51,7 +52,7 @@ function runNextTest(name, result) {
     currentTest++;
   } else {
     var request = new XMLHttpRequest();
-    request.open("POST", "/tests/done", false);
+    request.open("POST", "/tests/done", true);
     request.send();
   }
 }

@@ -1,0 +1,91 @@
+<html>
+
+<head>
+    <script src='/tests/assert.js'></script>
+    <script src='/node_modules/promise-polyfill/promise.min.js'></script>
+    <script src='/node_modules/whatwg-fetch/fetch.js'></script>
+    <script src='/dist/fetch-middleware.min.js'></script>
+    <script language='javascript'>
+        window.onload = function () {
+            parent.run('Authorization', function () {
+                var filterOrder = [];
+
+                addMiddleware({
+                    before: function(settings, options) {
+                        filterOrder.push("Filter 1 before");
+                    },
+                    then: function(response, settings, options, reject, next) {
+                        filterOrder.push("Filter 1 after");
+
+                        // Only handle 403's
+                        if (response.status != "403") {
+                            next();
+                            return;
+                        }
+                        
+                        response.json().then(function(content) {
+                            // Only handle "no_auth_token" errors
+                            // Leave the rest to other filters or
+                            // the original handler
+                            if (!content.error || content.error != 'no_auth_token') {
+                                next();
+                                return;
+                            }
+
+                            // At this stage, you know your request failed with a "no_auth_token" error
+                            // You can decide to show a popup that requests a password from the user, do
+                            // a request to a specific server, or simply retry the initial request with
+                            // new parameters. In this test we will directly do a request with new parameters
+
+                            // Deep clone the options and add a header
+                            // We clone because we don't want to modify the original headers
+                            var newOptions = options && JSON.parse(JSON.stringify(options)) || {};
+                            newOptions.headers = newOptions.headers || {};
+                            newOptions.headers['X-Auth-token'] = 'It\'s better with an auth token';
+
+                            // This means the request was rejected,
+                            // We are going to make a new request with authorization in place
+                            fetch(settings, newOptions).then(function(response) {
+
+                                // If this request succeeds, we'll send the new
+                                // response to the next handler
+                                next(response);
+                            }).catch(reject);
+                        }).catch(reject)
+                    }
+                });
+
+                addMiddleware({
+                    before: function(settings, options) {
+                        filterOrder.push("Filter 2 before");
+                    },
+                    then: function(response, settings, options, reject, next) {
+                        filterOrder.push("Filter 2 after");
+                        next();
+                    }
+                });
+
+                expectAsserts(3);
+                return fetch("/tests/advanced/test.authorization.json").then(function (response) {
+                    assertInstanceOf(Response, response);
+                    assertEquals(200, response.status);
+                    assertEquals([
+                        "Filter 2 before", // Main request
+                        "Filter 1 before", // Main request
+                        "Filter 1 after",  // Main request
+                        "Filter 2 before", // Sub-request
+                        "Filter 1 before", // Sub-request
+                        "Filter 1 after",  // Sub-request
+                        "Filter 2 after",  // Sub-request
+                        "Filter 2 after"   // Main request
+                        ], filterOrder)
+                })
+            });
+        }
+    </script>
+</head>
+
+<body>
+</body>
+
+</html>
