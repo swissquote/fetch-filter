@@ -4,6 +4,12 @@ function writeLog($log) {
     fwrite($out, "[TEST] " . $log . "\n");
 }
 
+function sendSignal($signal) {
+    if (array_key_exists('pid', $_GET) && is_numeric($_GET['pid'])) {
+        posix_kill($_GET['pid'], $signal);
+    }
+}
+
 function getFiles() {
     $files = array_merge(
         glob( __DIR__ . "/test.*.html"),
@@ -25,16 +31,15 @@ if (array_key_exists('action', $_GET)) {
         if ($_POST['result'] == 'OK') {
             writeLog("'" . $_POST['name'] . "' succeeded");
         } else {
-            posix_kill($_GET['pid'], SIGUSR1);
+            sendSignal(SIGUSR1);
             writeLog("'" . $_POST['name'] . "' failed with " . $_POST['result']);
         }
     }
 
     if ($_GET['action'] == 'done') {
-        posix_kill($_GET['pid'], SIGUSR2);
+        writeLog("Tests ended");
+        sendSignal(SIGUSR2);
     }
-
-
 } else  {
 
 writeLog("Starting tests, " . count($files) . " tests to run");
