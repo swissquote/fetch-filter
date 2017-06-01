@@ -23,9 +23,12 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "rollup -c",
-    "test": "./runtest.sh"
+    "test": "node test.js"
   },
   "devDependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "glob": "^7.1.2",
     "resolve": "^1.3.3",
     "rollup": "^0.41.6",
     "rollup-plugin-typescript2": "^0.4.2",

@@ -28,7 +28,7 @@ function reportResultAndRunNextTest(result, location){
     }
 
     var request = new XMLHttpRequest();
-    request.open('POST', 'index.php?action=result&pid=' + pid, true);
+    request.open('POST', '/tests/result', true);
     request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
     request.send("name=" + encodeURIComponent(testName) + "&result=" + encodeURIComponent(result));
     
@@ -41,7 +41,7 @@ function runNextTest(name, result) {
         currentTest++;
     } else {
         var request = new XMLHttpRequest();
-        request.open('GET', 'index.php?action=done&pid=' + pid, true);
+        request.open('POST', '/tests/done', true);
         request.send();
     }
 }

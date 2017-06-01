@@ -1,0 +1,47 @@
+<html>
+<head>
+<script src="tests.js"></script>
+<script>
+    var tests = __TESTS__;
+
+    var testName;
+    var currentTest = 0;
+	var logDiv;
+	var iframe;
+
+	onload = function() {
+		iframe = document.getElementById("iframe");
+		logDiv = document.getElementById("log");
+		runNextTest();
+	}
+</script>
+<style>
+body {
+    color: #333;
+    font-family: Arial, Helvetica, sans-serif;
+}
+#iframe {
+    float:right;
+    border: solid 1px #ddd;
+}
+#log {
+    padding-left: 20px;
+    font-size: .8em;
+    height: 90%;
+    overflow-y: auto;
+}
+.error {
+    color: red;
+    cursor: pointer;
+}
+pre {
+    border-left: 2px solid red;
+    padding-left: 5px;
+}
+</style>
+</head>
+<body>
+    <iframe id="iframe" src="about:blank" width="600" height="400"></iframe>
+    <div id="log"></div>
+</body>
+</html>
