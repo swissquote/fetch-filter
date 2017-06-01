@@ -1,9 +1,9 @@
 declare global  {
     interface Window {
-        addMiddleware(middleware: FetchMiddleware): void;
+        addFetchFilter(filter: FetchFilter): void;
     }
 }
-export interface FetchMiddleware {
+export interface FetchFilter {
     /**
      * Executed before the request is sent, you may add headers or change the options any way you want
      */
@@ -11,13 +11,13 @@ export interface FetchMiddleware {
     /**
      * Executed when the request was successful, you can implement any logic here, even asynchronous.
      *
-     * You can call reject(String reason) if you decide the request should not pass.
+     * You can call reject(reason) if you decide the request should not pass.
      */
     then?(response: Response, settings: RequestInfo, options: RequestInit, reject: (reason: any) => void, next: (newResponse?: Response) => void): void;
     /**
      * Executed when the request was successful, you can implement any logic here, even asynchronous.
      *
-     * You can call resolve(Object data) if you decide the request should pass.
+     * You can call resolve(reponse) if you decide the request should pass.
      */
     fail?(reason: any, settings: RequestInfo, options: RequestInit, resolve: (response: Response) => void, next: Function): void;
 }

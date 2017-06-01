@@ -1,63 +1,66 @@
-import middlewareChain from "./MiddlewareChain";
+import filterChain from "./FilterChain";
 
 declare global {
     interface Window {
-        addMiddleware(middleware: FetchMiddleware): void;
+        addFetchFilter(filter: FetchFilter): void;
     }
 }
 
-export interface FetchMiddleware {
+export interface FetchFilter {
     /**
      * Executed before the request is sent, you may add headers or change the options any way you want
      */
-    before?(settings: RequestInfo, options?: RequestInit): void;
-
-    /**
-     * Executed when the request was successful, you can implement any logic here, even asynchronous.
-     *
-     * You can call reject(String reason) if you decide the request should not pass.
-     */
-    then?(
-        response: Response, 
-        settings: RequestInfo, 
-        options: RequestInit, 
-        reject: (reason: any) => void, 
-        next: (newResponse?: Response) => void
+    before?(
+        settings: RequestInfo, // Original first parameter set to fetch
+        options?: RequestInit  // Original second parameter set to fetch
     ): void;
 
     /**
      * Executed when the request was successful, you can implement any logic here, even asynchronous.
      *
-     * You can call resolve(Object data) if you decide the request should pass.
+     * You can call reject(reason) if you decide the request should not pass.
+     */
+    then?(
+        response: Response,    // The response given by Fetch
+        settings: RequestInfo, // Original first parameter set to fetch
+        options: RequestInit,  // Original second parameter set to fetch
+        reject: (reason: any) => void, // Pass from resolved to failed for this promise
+        next: (newResponse?: Response) => void // The callback to call when you're done with your business, you can optionally provide a new Response object here that will replace the original response
+    ): void;
+
+    /**
+     * Executed when the request was successful, you can implement any logic here, even asynchronous.
+     *
+     * You can call resolve(reponse) if you decide the request should pass.
      */
     fail?(
-        reason: any, 
-        settings: RequestInfo, 
-        options: RequestInit, 
-        resolve: (response: Response) => void, 
-        next: Function
+        reason: any,           // The object you receive from the failed promise
+        settings: RequestInfo, // Original first parameter set to fetch
+        options: RequestInit,  // Original second parameter set to fetch
+        resolve: (response: Response) => void, // Pass from failed to resolved for this request
+        next: Function         // The callback to call when you're done with your business
     ): void;
 }
 
-var middlewares: FetchMiddleware[] = [];
+var filters: FetchFilter[] = [];
 
 /**
- * Register a new Middleware
+ * Register a new Filter
  *
- * @param middleware
+ * @param filter
  */
-window.addMiddleware = function(middleware: FetchMiddleware) {
-    middlewares.push(middleware);
+window.addFetchFilter = function (filter: FetchFilter) {
+    filters.push(filter);
 }
 
 const bounceError = "Bouncing between rejected and resolved, stopping loop";
 
 var originalFetch = window.fetch;
-window.fetch = function(request: RequestInfo, options?: RequestInit): Promise<Response> {
+window.fetch = function (request: RequestInfo, options?: RequestInit): Promise<Response> {
 
     return new Promise((resolve, reject) => {
-        // Before middlewares
-        middlewareChain.before(middlewares, request, options);
+        // Before filters
+        filterChain.before(filters, request, options);
 
         // Make the actual call
         var innerXHR = originalFetch(request, options);
@@ -69,19 +72,19 @@ window.fetch = function(request: RequestInfo, options?: RequestInit): Promise<Re
                 throw new Error(bounceError);
             };
 
-            // If a middleware decides to reject the request, this method is called
+            // If a filter decides to reject the request, this method is called
             const deferredReject = function (errorThrown: any) {
-                middlewareChain.fail(
-                    middlewares, 
-                    [errorThrown, request, options, deferredResolveAgain], 
+                filterChain.fail(
+                    filters,
+                    [errorThrown, request, options, deferredResolveAgain],
                     () => reject(errorThrown)
                 );
             };
 
-            middlewareChain.done(
-                middlewares,
-                [data, request, options, deferredReject], 
-                (response) => resolve(response) // All middlewares passed, resolve the outer XHR
+            filterChain.done(
+                filters,
+                [data, request, options, deferredReject],
+                (response) => resolve(response) // All filters passed, resolve the outer XHR
             );
         });
 
@@ -92,19 +95,19 @@ window.fetch = function(request: RequestInfo, options?: RequestInit): Promise<Re
                 throw new Error(bounceError);
             };
 
-            // If a middleware decides to resolve the request, this method is called
+            // If a filter decides to resolve the request, this method is called
             var deferredResolve = function (data: Response) {
-                middlewareChain.done(
-                    middlewares,
+                filterChain.done(
+                    filters,
                     [data, request, options, deferredRejectAgain],
                     (response) => resolve(response)
                 );
             };
 
-            middlewareChain.fail(
-                middlewares, 
-                [errorThrown, request ,options, deferredResolve], 
-                () => reject(errorThrown) // All middlewares passed, reject the outer XHR
+            filterChain.fail(
+                filters,
+                [errorThrown, request, options, deferredResolve],
+                () => reject(errorThrown) // All filters passed, reject the outer XHR
             );
         });
     });

@@ -1,5 +1,5 @@
 {
-  "name": "fetch-middleware",
+  "name": "fetch-filter",
   "version": "0.9.0",
   "description": "A wrapper around Fetch that allows to manipulate the responses, or have side effects on them",
   "author": "Stéphane Goetz <onigoetz@onigoetz.ch>",
@@ -13,13 +13,13 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/onigoetz/fetch-middleware.git"
+    "url": "https://github.com/onigoetz/fetch-filter.git"
   },
   "bugs": {
-    "url": "https://github.com/onigoetz/fetch-middleware/issues"
+    "url": "https://github.com/onigoetz/fetch-filter/issues"
   },
-  "homepage": "https://github.com/onigoetz/fetch-middleware",
-  "main": "dist/fetch-middleware.min.js",
+  "homepage": "https://github.com/onigoetz/fetch-filter",
+  "main": "dist/fetch-filter.min.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "rollup -c",

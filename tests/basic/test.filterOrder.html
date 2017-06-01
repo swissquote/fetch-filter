@@ -4,14 +4,14 @@
     <script src='/tests/assert.js'></script>
     <script src='/node_modules/promise-polyfill/promise.min.js'></script>
     <script src='/node_modules/whatwg-fetch/fetch.js'></script>
-    <script src='/dist/fetch-middleware.min.js'></script>
+    <script src='/dist/fetch-filter.min.js'></script>
     <script language='javascript'>
         window.onload = function () {
             parent.run('Filter order', function () {
 
                 var filterOrder = [];
 
-                addMiddleware({
+                addFetchFilter({
                     before: function(settings, options) {
                         filterOrder.push("Filter 1 before");
                     },
@@ -21,7 +21,7 @@
                     }
                 });
 
-                addMiddleware({
+                addFetchFilter({
                     before: function(settings, options) {
                         filterOrder.push("Filter 2 before");
                     },

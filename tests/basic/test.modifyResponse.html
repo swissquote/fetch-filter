@@ -4,21 +4,21 @@
     <script src='/tests/assert.js'></script>
     <script src='/node_modules/promise-polyfill/promise.min.js'></script>
     <script src='/node_modules/whatwg-fetch/fetch.js'></script>
-    <script src='/dist/fetch-middleware.min.js'></script>
+    <script src='/dist/fetch-filter.min.js'></script>
     <script language='javascript'>
         window.onload = function () {
             parent.run('Modifying response', function () {
 
                 var filterOrder = [];
 
-                addMiddleware({
+                addFetchFilter({
                     then: function(response, settings, options, reject, next) {
                         var newResponse = new Response(response.body, {status: 480, statusText: "Something", headers: response.headers});
                         next(newResponse);
                     }
                 });
 
-                addMiddleware({
+                addFetchFilter({
                     then: function(response, settings, options, reject, next) {
                         assertEquals(480, response.status);
                         next();
