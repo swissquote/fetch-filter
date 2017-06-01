@@ -3,6 +3,7 @@ var glob = require("glob");
 var fs = require("fs");
 var express = require("express");
 var bodyParser = require("body-parser");
+var tmp = require("tmp");
 
 var app = express();
 
@@ -14,6 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // to support URL-encoded bo
 
 app.use("/tests", express.static(__dirname + "/tests"));
 app.use("/dist", express.static(__dirname + "/dist"));
+app.use("/node_modules", express.static(__dirname + "/node_modules"));
 
 app.get("/tests/runner", function(req, res) {
   glob("tests/**/test.*.html", function(er, files) {
@@ -34,7 +36,7 @@ app.post("/tests/result", function(req, res) {
     console.log("[OK] " + req.body.name);
   } else {
     failedTest = true;
-    console.log("[FAILED] " + req.body.name + ":" + req.body.result);
+    console.log("[FAILED] " + req.body.name + ": " + req.body.result);
   }
   res.send("");
 });
@@ -54,18 +56,66 @@ app.post("/tests/done", function(req, res) {
   process.exit(failedTest ? 1 : 0);
 });
 
+function prefixBrowserOutput(data) {
+  var lines = data
+    .toString()
+    .split(/\r?\n/)
+    .filter(line => line != "")
+    .map(line => `[BROWSER] ${line}`)
+    .join("\n");
+  console.log(lines);
+}
+
 app.listen(8098, function() {
-  console.log("Running tests");
+  var browser = process.argv[2] ? process.argv[2] : "chrome";
 
-  runningBrowser = child_process.spawn("firefox", [
-    "http://127.0.0.1:8098/tests/runner"
-  ]);
+  console.log(`Using ${browser} to run tests`);
+  runningBrowser = browsers[browser]("http://127.0.0.1:8098/tests/runner");
 
-  runningBrowser.stdout.on("data", data => {
-    console.log(`[BROWSER]: ${data}`);
-  });
-
-  runningBrowser.stderr.on("data", data => {
-    console.log(`[BROWSER]: ${data}`);
-  });
+  runningBrowser.stdout.on("data", prefixBrowserOutput);
+  runningBrowser.stderr.on("data", prefixBrowserOutput);
 });
+
+var browsers = {
+  firefox: function(path) {
+    return child_process.spawn("firefox", [path]);
+  },
+  chrome: function(path) {
+    return child_process.spawn("google-chrome", [path]);
+  },
+  phantomjs: function(path) {
+    phantomjsFileContent = `
+    var system = require('system');
+    var webPage = require('webpage');
+
+    var testPage = system.args[1];
+    var page = webPage.create();
+
+    page.onConsoleMessage = function(msg) {
+      console.log(msg);
+    };
+
+    page.onError = function(msg, trace) {
+      var msgStack = ['ERROR: ' + msg];
+      
+      if (trace && trace.length) {
+        msgStack.push('TRACE:');
+        trace.forEach(function(t) {
+          msgStack.push(' -> ' + t.file + ': ' + t.line + (t.function ? ' (in function "' + t.function +'")' : ''));
+        });
+      }
+
+      console.error(msgStack.join('\\n'));
+    };
+
+    page.open(testPage, function(status) {
+      console.log('Started testing :' + status);
+    });
+    `;
+
+    var tmpfile = tmp.fileSync();
+    fs.writeFileSync(tmpfile.name, phantomjsFileContent);
+
+    return child_process.spawn("phantomjs", [tmpfile.name, path]);
+  }
+};

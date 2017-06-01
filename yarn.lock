@@ -456,6 +456,10 @@ once@^1.3.0:
   dependencies:
     wrappy "1"
 
+os-tmpdir@~1.0.1:
+  version "1.0.2"
+  resolved "https://registry.npmjs.com/os-tmpdir/-/os-tmpdir-1.0.2.tgz#bbe67406c79aa85c5cfec766fe5734555dfa1274"
+
 parse-glob@^3.0.4:
   version "3.0.4"
   resolved "https://registry.npmjs.com/parse-glob/-/parse-glob-3.0.4.tgz#b2c376cfb11f35513badd173ef0bb6e3a388391c"
@@ -484,6 +488,10 @@ path-to-regexp@0.1.7:
 preserve@^0.2.0:
   version "0.2.0"
   resolved "https://registry.npmjs.com/preserve/-/preserve-0.2.0.tgz#815ed1f6ebc65926f865b310c0713bcb3315ce4b"
+
+promise-polyfill@^6.0.2:
+  version "6.0.2"
+  resolved "https://registry.npmjs.com/promise-polyfill/-/promise-polyfill-6.0.2.tgz#d9c86d3dc4dc2df9016e88946defd69b49b41162"
 
 proxy-addr@~1.1.4:
   version "1.1.4"
@@ -615,6 +623,12 @@ source-map@^0.5.6, source-map@~0.5.1:
   version "1.3.1"
   resolved "https://registry.npmjs.com/statuses/-/statuses-1.3.1.tgz#faf51b9eb74aaef3b3acf4ad5f61abf24cb7b93e"
 
+tmp@^0.0.31:
+  version "0.0.31"
+  resolved "https://registry.npmjs.com/tmp/-/tmp-0.0.31.tgz#8f38ab9438e17315e5dbd8b3657e8bfb277ae4a7"
+  dependencies:
+    os-tmpdir "~1.0.1"
+
 tslib@^1.7.1:
   version "1.7.1"
   resolved "https://registry.npmjs.com/tslib/-/tslib-1.7.1.tgz#bc8004164691923a79fe8378bbeb3da2017538ec"
@@ -648,6 +662,10 @@ utils-merge@1.0.0:
 vary@~1.1.1:
   version "1.1.1"
   resolved "https://registry.npmjs.com/vary/-/vary-1.1.1.tgz#67535ebb694c1d52257457984665323f587e8d37"
+
+whatwg-fetch@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.npmjs.com/whatwg-fetch/-/whatwg-fetch-2.0.3.tgz#9c84ec2dcf68187ff00bc64e1274b442176e1c84"
 
 wrappy@1:
   version "1.0.2"

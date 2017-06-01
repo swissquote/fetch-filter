@@ -2,10 +2,12 @@
 
 <head>
     <script src='/tests/assert.js'></script>
+    <script src='/node_modules/promise-polyfill/promise.min.js'></script>
+    <script src='/node_modules/whatwg-fetch/fetch.js'></script>
     <script src='/dist/fetch-middleware.min.js'></script>
     <script language='javascript'>
         window.onload = function () {
-            parent.run('Filter order', () => {
+            parent.run('Filter order', function () {
 
                 var filterOrder = [];
 
@@ -30,7 +32,7 @@
                 });
 
                 expectAsserts(2);
-                return fetch("grumpy-cat.jpg").then((response) => {
+                return fetch("grumpy-cat.jpg").then(function (response) {
                     assertEquals(200, response.status);
                     assertEquals([
                         "Filter 2 before",

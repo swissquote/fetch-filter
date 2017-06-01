@@ -22,14 +22,15 @@ function renderStack(stack) {
 function reportResultAndRunNextTest(result, location) {
   if (result == "OK") {
     log(result + "<br>");
-    console.info("%cTest succeeded", "color: green");
+    console.log("Test succeeded");
   } else {
-    console.error("Test failed: ", result);
+    console.log("Test failed");
+    console.error(result);
     logError(result + "<br>", result);
   }
 
   var request = new XMLHttpRequest();
-  request.open("POST", "/tests/result", true);
+  request.open("POST", "/tests/result", false);
   request.setRequestHeader(
     "Content-Type",
     "application/x-www-form-urlencoded; charset=UTF-8"
@@ -50,7 +51,7 @@ function runNextTest(name, result) {
     currentTest++;
   } else {
     var request = new XMLHttpRequest();
-    request.open("POST", "/tests/done", true);
+    request.open("POST", "/tests/done", false);
     request.send();
   }
 }
@@ -90,7 +91,7 @@ function run(name, toExecute, expectedException) {
   }
 
   testName = name;
-  console.log("Testing:", name);
+  console.log("Testing: " + name);
   log("<b>" + name + "</b>: ");
 
   try {
