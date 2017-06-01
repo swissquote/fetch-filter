@@ -1,5 +1,9 @@
 # Fetch filter
 
+[![Travis](https://img.shields.io/travis/swissquote/fetch-filter.svg?style=flat-square)](https://travis-ci.org/swissquote/fetch-filter)
+[![npm (scoped)](https://img.shields.io/npm/v/@swissquote/fetch-filter.svg?style=flat-square)](https://www.npmjs.com/package/@swissquote/fetch-filter)
+
+
 Fetch filter is a utility library that replaces the original `fetch` with itself to allow manipulations on the response before the original requester gets the response.
  
 This allows to implement things like password confirmations without needing to modify the original code in any way.
