@@ -7,7 +7,7 @@ php -S 127.0.0.1:8098 &
 PHP_PID=$!
 
 # Start browser that will run the tests
-google-chrome http://127.0.0.1:8098/tests/?pid=$$ &
+firefox http://127.0.0.1:8098/tests/?pid=$$ &
 
 FAILED_TEST=false;
 
