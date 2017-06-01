@@ -60,8 +60,6 @@ interface FetchFilter {
 }
 ```
 
-
-
 ```typescript
 addFetchFilter(filter: FetchFilter): void;
 ```
@@ -111,7 +109,7 @@ addFetchFilter({
                     // If this request succeeds, we'll send the new
                     // response to the next handler
                     next(response);
-                    
+
                 }).catch(reject); // The new request failed, we'll just fail the full request
 
             }).catch(function () {

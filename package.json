@@ -1,9 +1,9 @@
 {
-  "name": "fetch-filter",
+  "name": "@swissquote/fetch-filter",
   "version": "0.9.0",
   "description": "A wrapper around Fetch that allows to manipulate the responses, or have side effects on them",
   "author": "Stéphane Goetz <onigoetz@onigoetz.ch>",
-  "licence": "MIT",
+  "licence": "Apache-2.0",
   "keywords": [
     "ajax",
     "xhr",
@@ -13,12 +13,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/onigoetz/fetch-filter.git"
+    "url": "https://github.com/swissquote/fetch-filter.git"
   },
   "bugs": {
-    "url": "https://github.com/onigoetz/fetch-filter/issues"
+    "url": "https://github.com/swissquote/fetch-filter/issues"
   },
-  "homepage": "https://github.com/onigoetz/fetch-filter",
+  "homepage": "https://github.com/swissquote/fetch-filter",
   "main": "dist/fetch-filter.min.js",
   "types": "dist/index.d.ts",
   "scripts": {
