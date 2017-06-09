@@ -126,3 +126,15 @@ addFetchFilter({
     }
 });
 ```
+## Installing
+
+`npm install --save @swissquote/fetch-filter`
+
+Because fetch-filter patches window.fetch you should use named import like
+
+```ecmascript 6 
+import "@swissquote/fetch-filter";
+
+//and then just call addFetchFilter from anywhere to init concrate filter
+addFetchFilter({});
+```
