@@ -9,7 +9,12 @@
         window.onload = function () {
             parent.run('Modifying response', function () {
 
-                var filterOrder = [];
+                // the first "before" gets executed after the second one. therefore we place the assertion before the actual change
+                addFetchFilter({
+                    before: function(settings, options) {
+                      assertEquals("test", options.headers["X-TEST"]);
+                    }
+                });
 
                 addFetchFilter({
                     before: function(settings, options) {
@@ -21,13 +26,6 @@
                                 "X-TEST": "test"
                             }
                         }
-                    }
-                });
-
-                addFetchFilter({
-                    before: function(settings, options) {
-                        assertEquals("test", options.headers["X-TEST"]);
-                        next();
                     }
                 });
 
