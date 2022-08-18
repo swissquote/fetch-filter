@@ -1,6 +1,6 @@
 {
   "name": "@swissquote/fetch-filter",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "A wrapper around Fetch that allows to manipulate the responses, or have side effects on them",
   "author": "Stéphane Goetz <onigoetz@onigoetz.ch>",
   "licence": "Apache-2.0",
