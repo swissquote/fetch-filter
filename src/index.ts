@@ -59,6 +59,9 @@ var originalFetch = window.fetch;
 window.fetch = function (request: RequestInfo, options?: RequestInit): Promise<Response> {
 
     return new Promise((resolve, reject) => {
+        // ensure an options object exists
+        options = options ? options : {};
+
         // Before filters
         filterChain.before(filters, request, options);
 

@@ -1,0 +1,42 @@
+<html>
+
+<head>
+    <script src='/tests/assert.js'></script>
+    <script src='/node_modules/promise-polyfill/promise.min.js'></script>
+    <script src='/node_modules/whatwg-fetch/fetch.js'></script>
+    <script src='/dist/fetch-filter.min.js'></script>
+    <script language='javascript'>
+        window.onload = function () {
+            parent.run('Modifying request options', function () {
+
+                // the first "before" gets executed after the second one. therefore we place the assertion before the actual change
+                addFetchFilter({
+                    before: function(settings, options) {
+                      assertEquals("test", options.headers["X-TEST"]);
+                    }
+                });
+
+                addFetchFilter({
+                    before: function(settings, options) {
+                        if(options.headers) {
+                            options.headers["X-TEST"] = "test";
+                        }
+                        else {
+                            options.headers = {
+                                "X-TEST": "test"
+                            }
+                        }
+                    }
+                });
+
+                expectAsserts(1);
+                return fetch("grumpy-cat.jpg");
+            });
+        }
+    </script>
+</head>
+
+<body>
+</body>
+
+</html>
