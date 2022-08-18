@@ -1,0 +1,26 @@
+name: Node CI
+
+on: [push]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [16.x]
+          
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3.4.1
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'yarn'
+    - name: yarn install
+      run: yarn install
+    - name: yarn build
+      run: yarn build
+    - name: Testing
+      run: yarn test

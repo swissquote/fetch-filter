@@ -1,16 +1,16 @@
-var child_process = require("child_process");
-var glob = require("glob");
-var fs = require("fs");
-var express = require("express");
-var bodyParser = require("body-parser");
-var tmp = require("tmp");
+const child_process = require("child_process");
+const glob = require("glob");
+const fs = require("fs");
+const express = require("express");
+const bodyParser = require("body-parser");
+const tmp = require("tmp");
 
-var app = express();
+const app = express();
 
-var failedTest = false;
-var runningBrowser;
+let failedTest = false;
+let runningInstance;
 
-var stayinAlive = (process.argv.indexOf("--stayinAlive") > -1)
+const stayinAlive = (process.argv.indexOf("--stayinAlive") > -1)
 
 // to support JSON and URL-encoded bodies
 app.use(bodyParser.json()); 
@@ -63,8 +63,8 @@ app.post("/tests/done", function(req, res) {
     console.log("At least one test failed, please check the logs");
   }
 
-  if (runningBrowser) {
-    runningBrowser.kill();
+  if (runningInstance) {
+    runningInstance.kill();
   }
 
   if (!stayinAlive) {
@@ -88,52 +88,60 @@ app.listen(8098, function() {
   console.log(`Using ${browser} to run tests`);
   runningBrowser = browsers[browser]("http://127.0.0.1:8098/tests/runner");
 
-  runningBrowser.stdout.on("data", prefixBrowserOutput);
-  runningBrowser.stderr.on("data", prefixBrowserOutput);
+  runningBrowser.run();
 });
 
 // Instructions on how to start the different 
 // browsers and have them run the tests
 var browsers = {
   firefox: function(path) {
-    return child_process.spawn("firefox", [path]);
+    let runningBrowser = null;
+
+    return {
+      run() {
+        runningBrowser = child_process.spawn("firefox", [path])
+
+        runningBrowser.stdout.on("data", prefixBrowserOutput);
+        runningBrowser.stderr.on("data", prefixBrowserOutput);
+      },
+      kill() {
+        if (runningBrowser) {
+          runningBrowser.kill();
+        }
+      }
+    };
   },
   chrome: function(path) {
-    return child_process.spawn("google-chrome", [path]);
-  },
-  phantomjs: function(path) {
-    phantomjsFileContent = `
-    var system = require('system');
-    var webPage = require('webpage');
+    return {
+      run() {
+        runningBrowser = child_process.spawn("google-chrome", [path])
 
-    var testPage = system.args[1];
-    var page = webPage.create();
-
-    page.onConsoleMessage = function(msg) {
-      console.log(msg);
-    };
-
-    page.onError = function(msg, trace) {
-      var msgStack = ['ERROR: ' + msg];
-      
-      if (trace && trace.length) {
-        msgStack.push('TRACE:');
-        trace.forEach(function(t) {
-          msgStack.push(' -> ' + t.file + ': ' + t.line + (t.function ? ' (in function "' + t.function +'")' : ''));
-        });
+        runningBrowser.stdout.on("data", prefixBrowserOutput);
+        runningBrowser.stderr.on("data", prefixBrowserOutput);
+      },
+      kill() {
+        if (runningBrowser) {
+          runningBrowser.kill();
+        }
       }
-
-      console.error(msgStack.join('\\n'));
     };
+  },
+  puppeteer: function(path) {
+    const puppeteer = require('puppeteer');
 
-    page.open(testPage, function(status) {
-      console.log('Started testing :' + status);
-    });
-    `;
+    let browser;
 
-    var tmpfile = tmp.fileSync();
-    fs.writeFileSync(tmpfile.name, phantomjsFileContent);
-
-    return child_process.spawn("phantomjs", [tmpfile.name, path]);
+    return {
+      async run() {
+        browser = await puppeteer.launch();
+        const page = await browser.newPage();
+        await page.goto(path);
+      },
+      async kill() {
+        if (browser) {
+          await browser.close();
+        }
+      }
+    };
   }
 };
